@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>In Phiếu Nội Soi (A4) - {{ exam.full_name }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/print.css') }}">
+    <style>
+        /* ===== TRANG A4 - khớp margin với file mẫu docx (top 18.35mm / right 14.11mm / bottom 4.94mm / left 17.99mm) ===== */
+        @page {
+            size: A4 portrait;
+            margin: 10mm 15mm; /* Nhỏ lại lề trên/dưới một chút để thoáng trang */
+        }
+        .page-a4 {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            padding: 18.35mm 14.11mm 4.94mm 17.99mm;
+            box-sizing: border-box;
+            font-family: "Times New Roman", Times, serif;
+            color: #000000;
+            font-size: 14pt;
+            line-height: 1.25;
+        }
+    
+        .text-center { text-align: center; }
+        .font-bold   { font-weight: bold; }
+    
+        /* ===== HEADER PHÒNG KHÁM ===== */
+        .clinic-name {
+            font-size: 20pt;
+            font-weight: bold;
+            text-align: center;
+            letter-spacing: 0.3px;
+            margin: 0;
+        }
+        .clinic-address {
+            font-size: 16pt;
+            text-align: center;
+            margin: 2pt 0 0 0;
+        }
+        .clinic-license {
+            font-size: 15pt;
+            text-align: center;
+            margin: 2pt 0 12pt 0;
+        }
+        .clinic-info {
+            font-size: 15pt;
+            text-align: center;
+            margin: 2pt 0 12pt 0;
+        }
+    
+        /* ===== TIÊU ĐỀ PHIẾU ===== */
+        .form-title {
+            font-size: 18pt;
+            font-weight: bold;
+            text-align: center;
+            margin: 10pt 0 16pt 0;
+        }
+    
+        /* ===== THÔNG TIN BỆNH NHÂN ===== */
+        .patient-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14pt;
+            line-height: 1.25;
+            margin: 0 0 6pt 0;
+            padding-left: 2mm;
+        }
+        .patient-row .label { font-weight: bold; font-size: 13pt; }
+    
+        .row-info {
+            font-size: 14pt;
+            line-height: 16.05pt;
+            margin: 0 0 6pt 0;
+            padding-left: 2mm;
+        }
+        .row-info .label { font-weight: bold; font-size: 13pt; }
+    
+/* =========================================================
+           LƯỚI 4 ẢNH NỘI SOI: KHÔNG VIÈN LƯỚI - TỰ ĐỘNG FIT MỌI TỈ LỆ
+           ========================================================= */
+        .grid-images-a4 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 20px; /* Khoảng cách thoáng đẹp giữa 4 ảnh */
+            margin: 10px 0 14px 0;
+            justify-items: center;
+            align-items: center;
+        }
+        .img-box-a4 {
+            text-align: center;
+            border: none !important; /* Xóa hoàn toàn viền lưới theo yêu cầu */
+            padding: 0;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .img-box-a4 img {
+            height: 145px;       /* Chiều cao chuẩn, vừa vặn trên trang A4 */
+            width: auto;         /* Tự động dãn chiều ngang theo đúng tỉ lệ ảnh của máy chụp */
+            max-width: 95%;      /* Không bao giờ bị lấn sang cột bên cạnh */
+            object-fit: contain; /* Hiển thị trọn vẹn 100% chi tiết ảnh, không cắt xén */
+            display: block;
+            margin: 0 auto;
+            border-radius: 3px;  /* Bo nhẹ góc ảnh cho mềm mại (tuỳ chọn) */
+        }
+        .img-box-a4 span {
+            font-size: 13.5px;
+            font-weight: bold;
+            display: block;
+            margin-top: 5px;
+            color: #111;
+        }
+        /* ========================================================= */
+        /* ===== KẾT QUẢ MÔ TẢ ===== */
+        /* "KẾT QUẢ:" trong file mẫu là chữ đậm 18pt, canh TRÁI (đã đối chiếu bản in thực tế) */
+        .section-label {
+            font-size: 18pt;
+            font-weight: bold;
+            text-align: center;
+            margin: 9pt 0 6pt 0;
+            padding-left: 2mm;
+        }
+    
+        .result-line {
+            font-size: 14pt;
+            margin: 0 0 6pt 0;
+            padding-left: 2mm;
+        }
+        .result-line .label { font-weight: bold; font-size: 13pt; }
+    
+        .conclusion-line {
+            font-size: 14pt;
+            margin: 6pt 0 6pt 0;
+            padding-left: 2mm;
+        }
+        .conclusion-line .label { font-weight: bold; font-size: 16pt; }
+    
+        /* ===== THỦ THUẬT ===== */
+        .procedures-line {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13pt;
+            margin: 8pt 0 0 0;
+            padding-left: 2mm;
+        }
+        .procedures-line b { font-weight: bold; }
+    
+        /* ===== CHỮ KÝ BÁC SĨ ===== */
+        .footer-sign {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10pt;
+            page-break-inside: avoid; /* Ngăn khối chữ ký bị ngắt trang */
+        }
+        .sign-box {
+            font-size: 13pt;
+            text-align: center;
+            width: 45%;
+            margin-left: auto;
+        }
+        .sign-box .sign-date { font-style: italic; text-align: center; margin-bottom: 2pt; }
+        .sign-box .sign-role { font-weight: bold; text-align: center; margin-bottom: 40pt; }
+        .sign-box .sign-name { font-weight: bold; text-align: center; }
+    
+        /* ===== 3 CÂU DẶN DÒ DƯỚI CÙNG ===== */
+        .footer-note {
+            font-size: 10pt;
+            margin-top: 12pt;
+            padding-left: 2mm;
+        }
+        .footer-note div { margin-bottom: 3pt; }
+    </style>
+    <body>
+        <div class="print-container">
+        
+        <!-- Thanh công cụ điều hướng trước khi in -->
+        <div class="toolbar-no-print" style="max-width: 210mm; margin: 0 auto 15px auto; padding: 10px 15px; background: #f1f5f9; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+            <a href="/" style="color: #475569; text-decoration: none; font-weight: bold;"><i class="fa-solid fa-house"></i> Trang chủ</a>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="window.print()" style="background: #0284c7; color: #fff; border: none; padding: 10px 18px; border-radius: 6px; font-weight: bold; cursor: pointer;"><i class="fa-solid fa-print"></i> IN PHIẾU A4</button>
+                <a href="/donthuoc/{{ exam.id }}" style="background: #10b981; color: #fff; text-decoration: none; padding: 10px 18px; border-radius: 6px; font-weight: bold;">Kê Đơn Thuốc <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+        </div>
+        <div class="page-a4">
+        
+            <!-- HEADER PHÒNG KHÁM -->
+            <div class="clinic-name">{{ settings.clinic_name }}</div>
+            <div class="clinic-address">Địa chỉ : {{ settings.clinic_address }}</div>
+            <div class="clinic-license">Số giấy phép hoạt động: {{ settings.clinic_license }}</div>
+            <!-- TIÊU ĐỀ PHIẾU -->
+            <div class="form-title">PHIẾU NỘI SOI TAI MŨI HỌNG</div>
+        
+            <!-- THÔNG TIN BỆNH NHÂN -->
+            <div class="patient-row">
+                <div><span class="label">HỌ VÀ TÊN:</span> <span class="font-bold" style="text-transform: uppercase;">{{ exam.full_name }}</span></div>
+                <div>
+                    <span class="label">Tuổi:</span> <span class="font-bold">{{ exam.age }}</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <span class="label">Giới tính:</span> <span class="font-bold">{{ exam.gender }}</span>
+                </div>
+            </div>
+            <div class="row-info">
+                <span class="label">ĐỊA CHỈ:</span> <span>{{ exam.address }}</span>
+            </div>
+            <div class="row-info">
+                <span class="label">LÝ DO KHÁM:</span> <span>{{ exam.symptom }}</span>
+            </div>
+        
+    <!-- =========================================================
+            KHUNG ẢNH NỘI SOI (CHỈ HIỆN KHI CÓ ÍT NHẤT 1 ẢNH)
+    ========================================================= -->
+            {% if exam.image_1 or exam.image_2 or exam.image_3 or exam.image_4 %}
+            <div class="grid-images-a4">
+                    {% if exam.image_1 %}
+                    <div class="img-box-a4">
+                        <img src="/static/uploads/{{ exam.image_1 }}">
+                        
+                    </div>
+                    {% endif %}
+                    
+                    {% if exam.image_2 %}
+                    <div class="img-box-a4">
+                        <img src="/static/uploads/{{ exam.image_2 }}">
+                       
+                    </div>
+                    {% endif %}
+                    
+                    {% if exam.image_3 %}
+                    <div class="img-box-a4">
+                        <img src="/static/uploads/{{ exam.image_3 }}">
+                        
+                    </div>
+                    {% endif %}
+                    
+                    {% if exam.image_4 %}
+                    <div class="img-box-a4">
+                        <img src="/static/uploads/{{ exam.image_4 }}">
+                        
+                    </div>
+                    {% endif %}
+            </div>
+            {% endif %}
+                <!-- ========================================================= -->
+        
+            <!-- KẾT QUẢ MÔ TẢ -->
+            <div class="section-label">KẾT QUẢ:</div>
+        
+            <div class="result-line"><span class="label">TAI:</span></div>
+            <div class="result-line">
+                <span class="label">Tai (P):</span> {{ exam.tai_p }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <span class="label">Tai (T):</span> {{ exam.tai_t }}
+            </div>
+        
+            <div class="result-line"><span class="label">MŨI:</span></div>
+            <div class="result-line">
+                <span class="label">Mũi (P):</span> {{ exam.mui_p }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <span class="label">Mũi (T):</span> {{ exam.mui_t }}
+            </div>
+        
+            <div class="result-line">
+                <span class="label">HỌNG:</span> {{ exam.vong_hong }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="label">VÒM HỌNG:</span>
+            </div>
+        
+            <div class="result-line">
+                <span class="label">HẠ HỌNG - THANH QUẢN:</span> {{ exam.thanh_quan }}
+            </div>
+        
+            <div class="conclusion-line">
+                <span class="label">KẾT LUẬN:</span> <span class="font-bold" style="text-transform: uppercase;">{{ exam.conclusion }}</span>
+            </div>
+        
+            <!-- THỦ THUẬT -->
+            <div class="procedures-line">
+                <div>Hút mũi: …<b>{{ exam.hut_mui_days or '' }}</b>… ngày</div>
+                <div>Chấm họng: …<b>{{ exam.cham_hong_days or '' }}</b>… ngày</div>
+                <div>Làm thuốc tai: …<b>{{ exam.lam_thuoc_tai_days or '' }}</b>… ngày</div>
+            </div>
+        
+            <!-- CHỮ KÝ BÁC SĨ -->
+            <div class="footer-sign">
+                <div></div>
+                <div class="sign-box">
+                    <div class="sign-date">Ngày {{ exam.created_at[8:10] }} tháng {{ exam.created_at[5:7] }} năm {{ exam.created_at[:4] }}</div>
+                    <div class="sign-role">Bác sỹ khám bệnh:</div>
+                    <div class="sign-name">BS: {{ settings.doctor_name }}</div>
+                </div>
+            </div>
+        
+            <!-- 3 CÂU DẶN DÒ DƯỚI CÙNG -->
+            <div class="footer-note">
+                <div>Phòng khám làm việc từ 17h-21h các ngày trong tuần (xin liên hệ theo số điện thoại trên)! Khám lại trước khi hết thuốc (khi tái khám nhớ mang theo phiếu này)!</div>
+                <div>Xin liên hệ với bác sỹ hoặc vào bệnh viện gần nhất nếu có các dấu hiệu sau: Dị ứng, nổi ban, khó thở, tím tái...</div>
+            </div>
+        
+        </div>
+</body>
+</html>

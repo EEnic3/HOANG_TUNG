@@ -1,0 +1,433 @@
+:root {
+    --primary-color: #0284c7;       /* Xanh y tế chủ đạo */
+    --primary-hover: #0369a1;       /* Xanh đậm khi hover */
+    --primary-light: #e0f2fe;       /* Xanh nhạt làm nền badge/button */
+    --bg-main: #f8fafc;             /* Màu nền tổng thể */
+    --card-bg: #ffffff;             /* Màu nền thẻ card */
+    --text-main: #0f172a;           /* Màu chữ chính */
+    --text-muted: #64748b;          /* Màu chữ phụ */
+    --border-color: #e2e8f0;        /* Màu viền */
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.02);
+    --radius: 12px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    background: 
+                url('../images/bg-medical.jpg') no-repeat center center fixed;
+    background-size: cover; /* Phủ kín toàn bộ màn hình */
+    color: var(--text-main);
+    line-height: 1.5;
+    min-height: 100vh;
+}
+
+/* --- HEADER --- */
+/* --- TÙY CHỈNH TOPBAR HEADER CHO GỌN GÀNG --- */
+.app-header {
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
+    padding: 12px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--shadow-sm);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+/* Gom nhóm các tab nằm trên topbar */
+.topbar-nav {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    background: #f1f5f9;
+    padding: 4px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+}
+
+.topbar-tab-btn {
+    background: transparent;
+    color: var(--text-muted);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.topbar-tab-btn:hover {
+    color: var(--text-main);
+    background: rgba(2, 132, 199, 0.08);
+}
+
+.topbar-tab-btn.active {
+    background: var(--primary-color);
+    color: #ffffff;
+    box-shadow: 0 2px 5px rgba(2, 132, 199, 0.3);
+}
+
+/* Mở rộng không gian hiển thị bên dưới */
+.main-container {
+    max-width: 1450px !important; /* Cho phép bảng rộng hơn */
+    margin: 20px auto;
+    padding: 0 20px;
+}
+
+.logo-area {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-icon {
+    background: var(--primary-color);
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.logo-text h1 {
+    font-size: 18px;
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.logo-text p {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.header-time {
+    font-size: 14px;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* --- MAIN CONTAINER --- */
+.main-container {
+    max-width: 1400px;
+    margin: 24px auto;
+    padding: 0 24px;
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    gap: 24px;
+}
+
+/* --- CARD GENERAL --- */
+.card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+    padding: 24px;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--primary-light);
+}
+
+.card-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* --- FORM TIẾP NHẬN --- */
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text-main);
+}
+
+input[type="text"],
+input[type="number"],
+select,
+textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s ease;
+    background-color: #fff;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+
+/* Nút chọn nhanh triệu chứng */
+.quick-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.tag-btn {
+    background: var(--primary-light);
+    color: var(--primary-color);
+    border: none;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.tag-btn:hover {
+    background: var(--primary-color);
+    color: #fff;
+}
+
+.btn-submit {
+    width: 100%;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.btn-submit:hover {
+    background: var(--primary-hover);
+}
+
+/* --- DANH SÁCH BỆNH NHÂN (TABLE) --- */
+.search-box {
+    position: relative;
+    width: 260px;
+}
+
+.search-box input {
+    padding: 8px 12px 8px 32px;
+    font-size: 13px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.patient-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.patient-table th {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+    font-size: 13px;
+    font-weight: 600;
+    text-align: left;
+    padding: 12px 14px;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.patient-table td {
+    padding: 12px 14px;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+.patient-table tr:hover {
+    background-color: #f8fafc;
+}
+
+.badge-gender {
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.gender-nam {
+    background-color: #e0f2fe;
+    color: #0369a1;
+}
+
+.gender-nu {
+    background-color: #fce7f3;
+    color: #be185d;
+}
+
+.btn-action {
+    background: var(--primary-color);
+    color: white;
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: background 0.2s;
+}
+
+.btn-action:hover {
+    background: var(--primary-hover);
+}
+/* --- TABS NAVIGATION --- */
+.tabs-nav {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+.tab-btn {
+    background: #e2e8f0;
+    color: var(--text-muted);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px 8px 0 0;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+    background: #cbd5e1;
+    color: var(--text-main);
+}
+
+.tab-btn.active {
+    background: var(--primary-color);
+    color: #ffffff;
+    box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);
+}
+
+/* Ẩn hiện nội dung Tab */
+.tab-content {
+    display: none;
+}
+.tab-content.active {
+    display: block;
+}
+
+/* --- ADVANCED SEARCH BOX --- */
+.advanced-search-bar {
+    display: grid;
+    grid-template-columns: 100px 2fr 1fr 2fr;
+    gap: 12px;
+    margin-bottom: 16px;
+    background: #f8fafc;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+/* --- PATIENT DETAIL TIMELINE --- */
+.history-card {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    background: #fff;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.history-header {
+    background: var(--primary-light);
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.history-body {
+    padding: 20px;
+}
+
+.btn-secondary {
+    background: #64748b;
+    color: white;
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.btn-secondary:hover { background: #475569; }
+
+/* --- RESPONSIVE --- */
+@media (max-width: 1024px) {
+    .main-container {
+        grid-template-columns: 1fr;
+    }
+}

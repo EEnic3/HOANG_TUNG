@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Hồ Sơ Bệnh Án - {{ patient.full_name }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .exam-details-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 24px;
+            margin-top: 15px;
+        }
+        .detail-box {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+        }
+        .detail-title {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 15px;
+            border-bottom: 2px solid var(--primary-light);
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .organ-row {
+            margin-bottom: 10px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .organ-row b {
+            color: #334155;
+            display: inline-block;
+            min-width: 130px;
+        }
+        .procedure-tags {
+            display: flex;
+            gap: 15px;
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px dashed #cbd5e1;
+            font-size: 13.5px;
+        }
+        .procedure-tags span {
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+        .med-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 13.5px;
+        }
+        .med-table th {
+            background: #e2e8f0;
+            text-align: left;
+            padding: 8px;
+            font-weight: 700;
+        }
+        .med-table td {
+            padding: 8px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .no-prescription-box {
+            background: #fef9c3;
+            border: 1px dashed #eab308;
+            color: #854d0e;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        @media (max-width: 900px) {
+            .exam-details-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <div class="logo-area">
+            <a href="/" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px;">
+                <div class="logo-icon"><i class="fa-solid fa-arrow-left"></i></div>
+                <div class="logo-text">
+                    <h1>QUAY LẠI DANH SÁCH</h1>
+                    <p>Hồ sơ y tế điện tử - Phòng Khám {{ settings.clinic_name }}</p>
+                </div>
+            </a>
+        </div>
+        <a href="/noisoi/{{ patient.id }}" class="btn-action" style="padding: 10px 18px; font-size: 14px;">
+            <i class="fa-solid fa-plus"></i> Tạo Ca Khám Mới Cho Bệnh Nhân Này
+        </a>
+    </header>
+
+    <main class="main-container" style="grid-template-columns: 1fr; max-width: 1250px;">
+        
+        <!-- THÔNG TIN HÀNH CHÍNH BỆNH NHÂN -->
+        <section class="card" style="background: #eff6ff; border-color: #bfdbfe;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h2 style="color: var(--primary-color); font-size: 22px; margin-bottom: 6px;">
+                        <i class="fa-solid fa-user-injured"></i> {{ patient.full_name }} (#{{ patient.id }})
+                    </h2>
+                    <p style="color: #334155; font-size: 15px;">
+                        <b>Tuổi:</b> {{ patient.age }} &nbsp;|&nbsp; 
+                        <b>Giới tính:</b> {{ patient.gender }} &nbsp;|&nbsp; 
+                        <b>Địa chỉ:</b> {{ patient.address or 'Chưa cập nhật' }}
+                    </p>
+                    <p style="margin-top: 4px; color: #475569; font-size: 14px;">
+                        <b>Triệu chứng đăng ký ban đầu:</b> {{ patient.symptom }}
+                    </p>
+                </div>
+                <div style="text-align: right; color: #64748b; font-size: 13px;">
+                    Ngày đăng ký hồ sơ:<br><b style="font-size: 14px; color: #0f172a;">{{ patient.created_at[:16] }}</b>
+                </div>
+            </div>
+        </section>
+
+        <!-- DANH SÁCH CÁC LẦN KHÁM CŨ (TIMELINE) -->
+        <h3 style="margin: 20px 0 15px 0; color: var(--text-main); font-size: 18px;">
+            <i class="fa-solid fa-clock-rotate-left"></i> Lịch Sử Khám & Kê Đơn (Tổng: {{ history|length }} lần khám)
+        </h3>
+
+        {% if history %}
+            {% for h in history %}
+            <div class="history-card">
+                
+                <!-- HEADER THẺ KHÁM -->
+                <div class="history-header">
+                    <div>
+                        <b style="color: var(--primary-color); font-size: 16px;">
+                            <i class="fa-regular fa-calendar-check"></i> Lần khám #{{ h.exam.id }} - Ngày: {{ h.exam.created_at[:16] }}
+                        </b>
+                        <span style="margin-left: 15px; color: #b91c1c; font-weight: bold; font-size: 16px; background: #fee2e2; padding: 4px 12px; border-radius: 6px;">
+                            Kết luận: {{ h.exam.conclusion }}
+                        </span>
+                    </div>
+                    <div>
+                        <!-- Nút In Lại Phiếu Nội Soi -->
+                        <a href="/print/noisoi/{{ h.exam.id }}" class="btn-action" style="background: #0284c7;">
+                            <i class="fa-solid fa-print"></i> In Phiếu Khám
+                        </a>
+                        <!-- Nút In Lại Đơn Thuốc hoặc Kê Đơn -->
+                        {% if h.prescription %}
+                        <a href="/print/donthuoc/{{ h.prescription.id }}" class="btn-action" style="background: #10b981; margin-left: 8px;">
+                            <i class="fa-solid fa-print"></i> In Đơn Thuốc A5
+                        </a>
+                        {% else %}
+                        <a href="/donthuoc/{{ h.exam.id }}" class="btn-action" style="background: #f59e0b; margin-left: 8px;">
+                            <i class="fa-solid fa-plus"></i> Kê Đơn Thuốc
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- BODY THẺ KHÁM: CHIA 2 CỘT CHI TIẾT -->
+                <div class="history-body">
+                    
+                    <!-- 4 Ảnh Nội Soi -->
+                    <div style="display: flex; gap: 12px; margin-bottom: 15px;">
+                        {% if h.exam.image_1 %}
+                        <div style="text-align: center;">
+                            <img src="/static/uploads/{{ h.exam.image_1 }}" style="height: 90px; width: 120px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1;">
+                            <div style="font-size: 11px; font-weight: bold; margin-top: 2px;">TAI</div>
+                        </div>
+                        {% endif %}
+                        {% if h.exam.image_2 %}
+                        <div style="text-align: center;">
+                            <img src="/static/uploads/{{ h.exam.image_2 }}" style="height: 90px; width: 120px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1;">
+                            <div style="font-size: 11px; font-weight: bold; margin-top: 2px;">MŨI</div>
+                        </div>
+                        {% endif %}
+                        {% if h.exam.image_3 %}
+                        <div style="text-align: center;">
+                            <img src="/static/uploads/{{ h.exam.image_3 }}" style="height: 90px; width: 120px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1;">
+                            <div style="font-size: 11px; font-weight: bold; margin-top: 2px;">HỌNG</div>
+                        </div>
+                        {% endif %}
+                        {% if h.exam.image_4 %}
+                        <div style="text-align: center;">
+                            <img src="/static/uploads/{{ h.exam.image_4 }}" style="height: 90px; width: 120px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1;">
+                            <div style="font-size: 11px; font-weight: bold; margin-top: 2px;">THANH QUẢN</div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="exam-details-grid">
+                        
+                        <!-- CỘT 1: KẾT QUẢ NỘI SOI & THỦ THUẬT -->
+                        <div class="detail-box">
+                            <div class="detail-title">
+                                <i class="fa-solid fa-stethoscope"></i> Chi Tiết Khám Nội Soi Tai Mũi Họng
+                            </div>
+                            <div class="organ-row">
+                                <b>Tai Phải (P):</b> {{ h.exam.tai_p or 'Bình thường' }}
+                            </div>
+                            <div class="organ-row">
+                                <b>Tai Trái (T):</b> {{ h.exam.tai_t or 'Bình thường' }}
+                            </div>
+                            <div class="organ-row">
+                                <b>Mũi Phải (P):</b> {{ h.exam.mui_p or 'Bình thường' }}
+                            </div>
+                            <div class="organ-row">
+                                <b>Mũi Trái (T):</b> {{ h.exam.mui_t or 'Bình thường' }}
+                            </div>
+                            <div class="organ-row">
+                                <b>Họng - Vòm Họng:</b> {{ h.exam.vong_hong or 'Bình thường' }}
+                            </div>
+                            <div class="organ-row">
+                                <b>Thanh Quản:</b> {{ h.exam.thanh_quan or 'Bình thường' }}
+                            </div>
+
+                            <!-- Thủ thuật -->
+                            <div class="procedure-tags">
+                                <span><i class="fa-solid fa-syringe"></i> Hút mũi: <b>{{ h.exam.hut_mui_days or '0' }}</b> ngày</span>
+                                <span><i class="fa-solid fa-eye-dropper"></i> Chấm họng: <b>{{ h.exam.cham_hong_days or '0' }}</b> ngày</span>
+                                <span><i class="fa-solid fa-ear-listen"></i> Làm thuốc tai: <b>{{ h.exam.lam_thuoc_tai_days or '0' }}</b> ngày</span>
+                            </div>
+                        </div>
+
+                        <!-- CỘT 2: ĐƠN THUỐC ĐÃ KÊ -->
+                        <div class="detail-box">
+                            <div class="detail-title">
+                                <i class="fa-solid fa-pills"></i> Đơn Thuốc & Hẹn Tái Khám
+                            </div>
+
+                            {% if h.medicines and h.medicines|length > 0 %}
+                                <div style="margin-bottom: 10px; font-size: 13.5px;">
+                                    Ngày khám lại: <b style="color: #b91c1c; text-decoration: underline;">{{ h.prescription.re_exam_date or 'Không hẹn tái khám' }}</b>
+                                </div>
+                                <table class="med-table">
+                                    <thead>
+                                        <tr>
+                                            <th>STT</th>
+                                            <th>Tên Thuốc + Số Lượng</th>
+                                            <th>Ngày uống</th>
+                                            <th>Sáng / Tối</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in h.medicines %}
+                                        <tr>
+                                            <td><b>#{{ loop.index }}</b></td>
+                                            <td style="font-weight: bold; color: #0f172a;">{{ item.medicine_name }}</td>
+                                            <td>{{ item.times_per_day }} lần</td>
+                                            <td style="color: #475569;">Sáng: <b>{{ item.morning_dose }}</b><br>Tối: <b>{{ item.evening_dose }}</b></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <div class="no-prescription-box">
+                                    <i class="fa-solid fa-circle-exclamation" style="font-size: 24px; margin-bottom: 8px;"></i>
+                                    <div><b>Ca khám này chưa được kê đơn thuốc.</b></div>
+                                    <p style="font-size: 13px; margin: 8px 0;">Hãy bấm vào nút dưới đây để tạo đơn thuốc cho bệnh nhân.</p>
+                                    <a href="/donthuoc/{{ h.exam.id }}" class="btn-action" style="background: #f59e0b; display: inline-flex; margin-top: 5px;">
+                                        <i class="fa-solid fa-plus"></i> Kê Đơn Thuốc Ngay
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="card" style="text-align: center; color: #64748b; padding: 40px;">
+                Bệnh nhân này chưa có lịch sử nội soi hay đơn thuốc nào.
+            </div>
+        {% endif %}
+
+    </main>
+</body>
+</html>

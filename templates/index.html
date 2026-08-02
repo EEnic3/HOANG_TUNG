@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Quản Lý - {{ settings.clinic_name or 'Phòng Khám Tai Mũi Họng' }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- Header Phòng Khám (Các Tab nằm trên Topbar) -->
+    <header class="app-header">
+        <div class="logo-area">
+            <div class="logo-icon"><i class="fa-solid fa-staff-snake"></i></div>
+            <div class="logo-text">
+                <h1>{{ settings.clinic_name or 'PHÒNG KHÁM TAI MŨI HỌNG' }}</h1>
+                <p>Chuyên khám Tai - Mũi - Họng</p>
+            </div>
+        </div>
+
+        <!-- 4 NÚT TAB ĐIỀU HƯỚNG TRÊN TOPBAR -->
+        <div class="topbar-nav">
+            <button class="topbar-tab-btn active" onclick="switchTab('tab-reception', this)">
+                <i class="fa-solid fa-user-plus"></i> 1. Tiếp Nhận
+            </button>
+            <button class="topbar-tab-btn" onclick="switchTab('tab-list', this)">
+                <i class="fa-solid fa-list-check"></i> 2. Quản Lý Hồ Sơ
+            </button>
+            <button class="topbar-tab-btn" onclick="switchTab('tab-settings', this)">
+                <i class="fa-solid fa-gear"></i> 3. Cài Đặt
+            </button>
+            <button class="topbar-tab-btn" onclick="switchTab('tab-medicines', this)">
+                <i class="fa-solid fa-pills"></i> 4. Tủ Thuốc Hay Dùng
+            </button>
+        </div>
+
+        <div class="header-time" id="clockDisplay">
+            <i class="fa-regular fa-clock"></i> Đang tải...
+        </div>
+    </header>
+
+    <!-- Nội Dung Chính -->
+    <main class="main-container" style="grid-template-columns: 1fr; max-width: 1200px;">
+        
+        <!-- ==========================================
+             TAB 1: FORM TIẾP NHẬN BỆNH NHÂN
+             ========================================== -->
+        <section id="tab-reception" class="card tab-content active" style="max-width: 750px; margin: 0 auto;">
+            <div class="card-header">
+                <div class="card-title">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>Đăng Ký Khám / Tiếp Nhận Mới</span>
+                </div>
+            </div>
+
+            <form action="/" method="POST" id="patientForm" autocomplete="off">
+                <div class="form-group">
+                    <label for="full_name">Họ và Tên Bệnh Nhân <span style="color: red;">*</span></label>
+                    <input type="text" id="full_name" name="full_name" placeholder="VD: NGUYỄN VĂN AN" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="age">Tuổi <span style="color: red;">*</span></label>
+                        <input type="number" id="age" name="age" placeholder="VD: 32" min="1" max="120" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="gender">Giới Tính</label>
+                        <select id="gender" name="gender">
+                            <option value="Nam">Nam</option>
+                            <option value="Nữ">Nữ</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="address">Địa Chỉ</label>
+                    <input type="text" id="address" name="address" placeholder="VD: Vĩnh Hưng, Hoàng Mai, Hà Nội">
+                </div>
+
+                <div class="form-group">
+                    <label for="symptom">Triệu Chứng / Lý Do Khám <span style="color: red;">*</span></label>
+                    <textarea id="symptom" name="symptom" rows="2" placeholder="VD: Đau họng, ho khan, ù tai phải..." required></textarea>
+                    
+                    <div class="quick-tags">
+                        <button type="button" class="tag-btn" onclick="addSymptom('Đau rát họng')">+ Đau rát họng</button>
+                        <button type="button" class="tag-btn" onclick="addSymptom('Ho có đờm')">+ Ho có đờm</button>
+                        <button type="button" class="tag-btn" onclick="addSymptom('Ù tai, ngứa tai')">+ Ù tai, ngứa tai</button>
+                        <button type="button" class="tag-btn" onclick="addSymptom('Nghẹt mũi, chảy mũi')">+ Nghẹt mũi</button>
+                        <button type="button" class="tag-btn" onclick="addSymptom('Khản tiếng')">+ Khản tiếng</button>
+                        <button type="button" class="tag-btn" onclick="addSymptom('Viêm amidan')">+ Viêm amidan</button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <i class="fa-solid fa-stethoscope"></i>
+                    <span>Tạo Phiếu & Chuyển Sang Khám Nội Soi</span>
+                </button>
+            </form>
+        </section>
+
+        <!-- ==========================================
+             TAB 2: DANH SÁCH & TÌM KIẾM NÂNG CAO
+             ========================================== -->
+        <section id="tab-list" class="card tab-content">
+            <div class="card-header" style="margin-bottom: 10px;">
+                <div class="card-title">
+                    <i class="fa-solid fa-folder-tree"></i>
+                    <span>Quản Lý Hồ Sơ Bệnh Nhân</span>
+                </div>
+            </div>
+
+            <!-- BỘ LỌC TÌM KIẾM CHI TIẾT NÂNG CAO -->
+            <div class="advanced-search-bar" style="display: grid; grid-template-columns: 80px 1.8fr 1fr 1.5fr 1.3fr 80px; gap: 10px; align-items: end;">
+                <div>
+                    <label style="font-size: 11px;">Mã #ID</label>
+                    <input type="text" id="filterId" placeholder="VD: 3">
+                </div>
+                <div>
+                    <label style="font-size: 11px;">Họ Tên Bệnh Nhân</label>
+                    <input type="text" id="filterName" placeholder="Tìm tên bệnh nhân...">
+                </div>
+                <div>
+                    <label style="font-size: 11px;">Giới Tính</label>
+                    <select id="filterGender">
+                        <option value="">-- Tất cả --</option>
+                        <option value="Nam">Nam</option>
+                        <option value="Nữ">Nữ</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size: 11px;">Triệu Chứng / Chẩn Đoán</label>
+                    <input type="text" id="filterSymptom" placeholder="VD: ho, amidan...">
+                </div>
+                <div>
+                    <label style="font-size: 11px;">Ngày Tiếp Nhận</label>
+                    <input type="date" id="filterDate">
+                </div>
+                <div>
+                    <button type="button" onclick="resetFilters()" style="height: 38px; width: 100%; background: #e2e8f0; border: none; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; color: #475569;" title="Xóa toàn bộ bộ lọc">
+                        <i class="fa-solid fa-rotate-left"></i> Xóa
+                    </button>
+                </div>
+            </div>
+
+            <!-- BẢNG DANH SÁCH BỆNH NHÂN (AJAX) -->
+            <div class="table-responsive">
+                <table class="patient-table" id="patientTable">
+                    <thead>
+                        <tr>
+                            <th>#ID</th>
+                            <th>Họ và Tên</th>
+                            <th>Tuổi</th>
+                            <th>Giới Tính</th>
+                            <th>Triệu Chứng / Lý Do Khám</th>
+                            <th>Ngày Tiếp Nhận</th>
+                            <th style="text-align: center;">Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="patientTableBody">
+                        <!-- Tải tự động qua AJAX từ /api/patients/search -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 3: CÀI ĐẶT PHÒNG KHÁM & BÁC SĨ
+             ========================================== -->
+        <section id="tab-settings" class="card tab-content" style="max-width: 750px; margin: 0 auto;">
+            <div class="card-header">
+                <div class="card-title">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Cấu Hình Thông Tin In Ấn (Phòng Khám & Bác Sĩ)</span>
+                </div>
+            </div>
+
+            <form action="/settings/update" method="POST" autocomplete="off">
+                <div class="form-group">
+                    <label>Tên Phòng Khám:</label>
+                    <input type="text" name="clinic_name" value="{{ settings.clinic_name }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Địa Chỉ Phòng Khám:</label>
+                    <input type="text" name="clinic_address" value="{{ settings.clinic_address }}" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Số Điện Thoại:</label>
+                        <input type="text" name="clinic_phone" value="{{ settings.clinic_phone }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Số Giấy Phép Hoạt Động:</label>
+                        <input type="text" name="clinic_license" value="{{ settings.clinic_license }}">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Tên Bác Sỹ Phụ Trách (Hiển thị ở chữ ký):</label>
+                    <input type="text" name="doctor_name" value="{{ settings.doctor_name }}" required>
+                </div>
+
+                <button type="submit" class="btn-submit" style="background: #0f172a; margin-top: 15px;">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    <span>Lưu Thay Đổi Cài Đặt</span>
+                </button>
+            </form>
+        </section>
+
+        <!-- ==========================================
+             TAB 4: QUẢN LÝ TỦ THUỐC HAY DÙNG
+             ========================================== -->
+        <section id="tab-medicines" class="card tab-content">
+            <div class="card-header" style="margin-bottom: 15px;">
+                <div class="card-title">
+                    <i class="fa-solid fa-pills" style="color: #0284c7;"></i>
+                    <span>Quản Lý Danh Sách Thuốc Tủ / Hay Dùng (Kê Đơn Nhanh)</span>
+                </div>
+            </div>
+
+            <!-- FORM THÊM THUỐC MỚI (NẰM NGANG CHO RỘNG RÃI) -->
+            <form action="/settings/quick-med/add" method="POST" autocomplete="off" style="background: #f8fafc; padding: 18px 22px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
+                <div style="display: grid; grid-template-columns: 2.2fr 0.8fr 1.5fr 1.5fr 160px; gap: 12px; align-items: end;">
+                    <div>
+                        <label style="font-size: 12px; font-weight: bold; color: #475569; display: block; margin-bottom: 5px;">Tên Thuốc + Số Lượng Mẫu <span style="color:red;">*</span></label>
+                        <input type="text" name="name" placeholder="VD: Amoksiklav 1g x 14 viên" required style="margin-bottom: 0;">
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; font-weight: bold; color: #475569; display: block; margin-bottom: 5px;">Ngày uống (Lần)</label>
+                        <input type="text" name="times_per_day" value="2" style="margin-bottom: 0; text-align: center;">
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; font-weight: bold; color: #475569; display: block; margin-bottom: 5px;">Liều Sáng Mặc Định</label>
+                        <input type="text" name="morning_dose" value="1 viên sau ăn" style="margin-bottom: 0;">
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; font-weight: bold; color: #475569; display: block; margin-bottom: 5px;">Liều Tối Mặc Định</label>
+                        <input type="text" name="evening_dose" value="1 viên sau ăn" style="margin-bottom: 0;">
+                    </div>
+                    <div>
+                        <button type="submit" class="btn-action" style="width: 100%; height: 42px; background: #0284c7; justify-content: center; margin: 0;">
+                            <i class="fa-solid fa-plus"></i> Thêm Thuốc
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- BẢNG DANH SÁCH THUỐC TỦ -->
+            <div class="table-responsive">
+                <table class="patient-table" style="font-size: 14.5px;">
+                    <thead>
+                        <tr>
+                            <th style="width: 35%;">Tên Thuốc</th>
+                            <th style="text-align: center; width: 15%;">Ngày uống (Lần)</th>
+                            <th style="width: 20%;">Liều Sáng</th>
+                            <th style="width: 20%;">Liều Tối</th>
+                            <th style="text-align: center; width: 10%;">Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if quick_meds %}
+                            {% for m in quick_meds %}
+                            <tr>
+                                <td style="font-weight: 600; color: var(--primary-color);">{{ m.name }}</td>
+                                <td style="text-align: center;"><b>{{ m.times_per_day }}</b></td>
+                                <td>{{ m.morning_dose }}</td>
+                                <td>{{ m.evening_dose }}</td>
+                                <td style="text-align: center;">
+                                    <a href="/settings/quick-med/delete/{{ m.id }}" onclick="return confirm('Xóa thuốc này khỏi danh sách nhanh?')" style="color: #ef4444; font-size: 17px;" title="Xóa thuốc">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" style="text-align: center; color: #64748b; padding: 30px;">
+                                    Chưa có thuốc nào trong tủ. Hãy thêm thuốc mới ở form phía trên!
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <!-- BỔ SUNG ĐOẠN SCRIPT NÀY ĐỂ GIỮ NGUYÊN TAB KHI RELOAD -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const hash = window.location.hash; // Lấy phần #tab-... trên URL
+            if (hash) {
+                const tabId = hash.replace('#', '');
+                const targetTab = document.getElementById(tabId);
+                // Tìm nút bấm trên topbar tương ứng với tab đó
+                const targetBtn = document.querySelector(`.topbar-tab-btn[onclick*="${tabId}"]`);
+                
+                if (targetTab && targetBtn) {
+                    switchTab(tabId, targetBtn);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

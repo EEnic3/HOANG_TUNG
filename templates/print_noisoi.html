@@ -6,16 +6,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/print.css') }}">
     <style>
-        /* ===== TRANG A4 - khớp margin với file mẫu docx (top 18.35mm / right 14.11mm / bottom 4.94mm / left 17.99mm) ===== */
+        /* ===== TRANG A4 - khớp margin với file mẫu docx ===== */
         @page {
             size: A4 portrait;
-            margin: 10mm 15mm; /* Nhỏ lại lề trên/dưới một chút để thoáng trang */
+            margin: 8mm 10mm;
         }
         .page-a4 {
             width: 210mm;
             min-height: 297mm;
             margin: 0 auto;
-            padding: 18.35mm 14.11mm 4.94mm 17.99mm;
+            padding: 15mm 14mm 5mm 17mm;
             box-sizing: border-box;
             font-family: "Times New Roman", Times, serif;
             color: #000000;
@@ -40,11 +40,6 @@
             margin: 2pt 0 0 0;
         }
         .clinic-license {
-            font-size: 15pt;
-            text-align: center;
-            margin: 2pt 0 12pt 0;
-        }
-        .clinic-info {
             font-size: 15pt;
             text-align: center;
             margin: 2pt 0 12pt 0;
@@ -77,20 +72,18 @@
         }
         .row-info .label { font-weight: bold; font-size: 13pt; }
     
-/* =========================================================
-           LƯỚI 4 ẢNH NỘI SOI: KHÔNG VIÈN LƯỚI - TỰ ĐỘNG FIT MỌI TỈ LỆ
-           ========================================================= */
+        /* ===== LƯỚI 4 ẢNH NỘI SOI ===== */
         .grid-images-a4 {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px 20px; /* Khoảng cách thoáng đẹp giữa 4 ảnh */
+            gap: 12px 20px;
             margin: 10px 0 14px 0;
             justify-items: center;
             align-items: center;
         }
         .img-box-a4 {
             text-align: center;
-            border: none !important; /* Xóa hoàn toàn viền lưới theo yêu cầu */
+            border: none !important;
             padding: 0;
             width: 100%;
             display: flex;
@@ -99,24 +92,16 @@
             justify-content: center;
         }
         .img-box-a4 img {
-            height: 145px;       /* Chiều cao chuẩn, vừa vặn trên trang A4 */
-            width: auto;         /* Tự động dãn chiều ngang theo đúng tỉ lệ ảnh của máy chụp */
-            max-width: 95%;      /* Không bao giờ bị lấn sang cột bên cạnh */
-            object-fit: contain; /* Hiển thị trọn vẹn 100% chi tiết ảnh, không cắt xén */
+            height: 145px;
+            width: auto;
+            max-width: 95%;
+            object-fit: contain;
             display: block;
             margin: 0 auto;
-            border-radius: 3px;  /* Bo nhẹ góc ảnh cho mềm mại (tuỳ chọn) */
+            border-radius: 3px;
         }
-        .img-box-a4 span {
-            font-size: 13.5px;
-            font-weight: bold;
-            display: block;
-            margin-top: 5px;
-            color: #111;
-        }
-        /* ========================================================= */
+    
         /* ===== KẾT QUẢ MÔ TẢ ===== */
-        /* "KẾT QUẢ:" trong file mẫu là chữ đậm 18pt, canh TRÁI (đã đối chiếu bản in thực tế) */
         .section-label {
             font-size: 18pt;
             font-weight: bold;
@@ -154,7 +139,7 @@
             display: flex;
             justify-content: space-between;
             margin-top: 10pt;
-            page-break-inside: avoid; /* Ngăn khối chữ ký bị ngắt trang */
+            page-break-inside: avoid;
         }
         .sign-box {
             font-size: 13pt;
@@ -173,10 +158,30 @@
             padding-left: 2mm;
         }
         .footer-note div { margin-bottom: 3pt; }
+
+        /* =========================================================
+           CSS KHÓA IN TRANG A4 - CHỐNG BỊ DƯ TRANG TRẮNG THỨ 2
+           ========================================================= */
+        @media print {
+            html, body {
+                width: 210mm;
+                height: 297mm;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: hidden !important; /* Khóa chiều cao, chống đẻ trang trắng phía sau */
+            }
+            .toolbar-no-print {
+                display: none !important;
+            }
+            .footer-sign, .footer-note {
+                page-break-inside: avoid !important;
+            }
+        }
     </style>
-    <body>
-        <div class="print-container">
-        
+</head>
+<body>
+    <div class="print-container">
+    
         <!-- Thanh công cụ điều hướng trước khi in -->
         <div class="toolbar-no-print" style="max-width: 210mm; margin: 0 auto 15px auto; padding: 10px 15px; background: #f1f5f9; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
             <a href="/" style="color: #475569; text-decoration: none; font-weight: bold;"><i class="fa-solid fa-house"></i> Trang chủ</a>
@@ -185,12 +190,14 @@
                 <a href="/donthuoc/{{ exam.id }}" style="background: #10b981; color: #fff; text-decoration: none; padding: 10px 18px; border-radius: 6px; font-weight: bold;">Kê Đơn Thuốc <i class="fa-solid fa-arrow-right"></i></a>
             </div>
         </div>
+
         <div class="page-a4">
         
             <!-- HEADER PHÒNG KHÁM -->
             <div class="clinic-name">{{ settings.clinic_name }}</div>
             <div class="clinic-address">Địa chỉ : {{ settings.clinic_address }}</div>
             <div class="clinic-license">Số giấy phép hoạt động: {{ settings.clinic_license }}</div>
+            
             <!-- TIÊU ĐỀ PHIẾU -->
             <div class="form-title">PHIẾU NỘI SOI TAI MŨI HỌNG</div>
         
@@ -209,61 +216,57 @@
                 <span class="label">LÝ DO KHÁM:</span> <span>{{ exam.symptom }}</span>
             </div>
         
-    <!-- =========================================================
-            KHUNG ẢNH NỘI SOI (CHỈ HIỆN KHI CÓ ÍT NHẤT 1 ẢNH)
-    ========================================================= -->
+            <!-- KHUNG ẢNH NỘI SOI -->
             {% if exam.image_1 or exam.image_2 or exam.image_3 or exam.image_4 %}
             <div class="grid-images-a4">
-                    {% if exam.image_1 %}
-                    <div class="img-box-a4">
-                        <img src="/static/uploads/{{ exam.image_1 }}">
-                        
-                    </div>
-                    {% endif %}
-                    
-                    {% if exam.image_2 %}
-                    <div class="img-box-a4">
-                        <img src="/static/uploads/{{ exam.image_2 }}">
-                       
-                    </div>
-                    {% endif %}
-                    
-                    {% if exam.image_3 %}
-                    <div class="img-box-a4">
-                        <img src="/static/uploads/{{ exam.image_3 }}">
-                        
-                    </div>
-                    {% endif %}
-                    
-                    {% if exam.image_4 %}
-                    <div class="img-box-a4">
-                        <img src="/static/uploads/{{ exam.image_4 }}">
-                        
-                    </div>
-                    {% endif %}
+                {% if exam.image_1 %}
+                <div class="img-box-a4">
+                    <img src="/static/uploads/{{ exam.image_1 }}">
+                </div>
+                {% endif %}
+                
+                {% if exam.image_2 %}
+                <div class="img-box-a4">
+                    <img src="/static/uploads/{{ exam.image_2 }}">
+                </div>
+                {% endif %}
+                
+                {% if exam.image_3 %}
+                <div class="img-box-a4">
+                    <img src="/static/uploads/{{ exam.image_3 }}">
+                </div>
+                {% endif %}
+                
+                {% if exam.image_4 %}
+                <div class="img-box-a4">
+                    <img src="/static/uploads/{{ exam.image_4 }}">
+                </div>
+                {% endif %}
             </div>
             {% endif %}
-                <!-- ========================================================= -->
         
-            <!-- KẾT QUẢ MÔ TẢ -->
+            <!-- =========================================================
+                 KẾT QUẢ MÔ TẢ (ĐÃ SỬA: TÁCH RIÊNG TAI P/T & MŨI P/T TỪNG DÒNG)
+                 ========================================================= -->
             <div class="section-label">KẾT QUẢ:</div>
         
-            <div class="result-line"><span class="label">TAI:</span></div>
             <div class="result-line">
-                <span class="label">Tai (P):</span> {{ exam.tai_p }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <span class="label">Tai (T):</span> {{ exam.tai_t }}
+                <span class="label">TAI (P):</span> {{ exam.tai_p }}
             </div>
-        
-            <div class="result-line"><span class="label">MŨI:</span></div>
             <div class="result-line">
-                <span class="label">Mũi (P):</span> {{ exam.mui_p }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <span class="label">Mũi (T):</span> {{ exam.mui_t }}
+                <span class="label">TAI (T):</span> {{ exam.tai_t }}
             </div>
         
             <div class="result-line">
-                <span class="label">HỌNG:</span> {{ exam.vong_hong }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="label">VÒM HỌNG:</span>
+                <span class="label">MŨI (P):</span> {{ exam.mui_p }}
+            </div>
+            <div class="result-line">
+                <span class="label">MŨI (T):</span> {{ exam.mui_t }}
             </div>
         
+            <div class="result-line">
+                <span class="label">HỌNG - VÒM HỌNG:</span> {{ exam.vong_hong }}
+            </div>
             <div class="result-line">
                 <span class="label">HẠ HỌNG - THANH QUẢN:</span> {{ exam.thanh_quan }}
             </div>
@@ -296,5 +299,6 @@
             </div>
         
         </div>
+    </div>
 </body>
 </html>

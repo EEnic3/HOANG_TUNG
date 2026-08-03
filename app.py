@@ -131,7 +131,17 @@ def delete_quick_med(med_id):
     db.execute('DELETE FROM quick_medicines WHERE id = ?', (med_id,))
     db.commit()
     return redirect(url_for('index') + '#tab-medicines')
-
+# Route Xóa NHIỀU thuốc nhanh cùng lúc (Kiểu iPhone)
+@app.route('/settings/quick-med/delete-bulk', methods=['POST'])
+def delete_quick_med_bulk():
+    med_ids = request.form.getlist('med_ids[]')
+    if med_ids:
+        db = get_db()
+        # Chuyển danh sách ID sang dạng tuple để xóa an toàn
+        params = [(int(mid),) for mid in med_ids if mid.isdigit()]
+        db.executemany('DELETE FROM quick_medicines WHERE id = ?', params)
+        db.commit()
+    return redirect(url_for('index') + '#tab-medicines')
 # 5. Form Tạo Phiếu Nội Soi & Lưu 4 Ảnh
 @app.route('/noisoi/<int:patient_id>', methods=['GET', 'POST'])
 def form_noisoi(patient_id):

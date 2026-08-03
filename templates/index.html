@@ -210,9 +210,9 @@
             </form>
         </section>
 
-        <!-- ==========================================
-             TAB 4: QUẢN LÝ TỦ THUỐC HAY DÙNG
-             ========================================== -->
+        <!-- ==========================================================
+             TAB 4: QUẢN LÝ TỦ THUỐC HAY DÙNG (CHỌN NHIỀU KIỂU iPHONE)
+             ========================================================== -->
         <section id="tab-medicines" class="card tab-content">
             <div class="card-header" style="margin-bottom: 15px;">
                 <div class="card-title">
@@ -248,55 +248,88 @@
                 </div>
             </form>
 
-            <!-- BẢNG DANH SÁCH THUỐC TỦ -->
-            <div class="table-responsive">
-                <table class="patient-table" style="font-size: 14.5px;">
-                    <thead>
-                        <tr>
-                            <th style="width: 35%;">Tên Thuốc</th>
-                            <th style="text-align: center; width: 15%;">Ngày uống (Lần)</th>
-                            <th style="width: 20%;">Liều Sáng</th>
-                            <th style="width: 20%;">Liều Tối</th>
-                            <th style="text-align: center; width: 10%;">Thao Tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% if quick_meds %}
-                            {% for m in quick_meds %}
-                            <tr>
-                                <td style="font-weight: 600; color: var(--primary-color);">{{ m.name }}</td>
-                                <td style="text-align: center;"><b>{{ m.times_per_day }}</b></td>
-                                <td>{{ m.morning_dose }}</td>
-                                <td>{{ m.evening_dose }}</td>
-                                <td style="text-align: center;">
-                                    <a href="/settings/quick-med/delete/{{ m.id }}" onclick="return confirm('Xóa thuốc này khỏi danh sách nhanh?')" style="color: #ef4444; font-size: 17px;" title="Xóa thuốc">
-                                        <i class="fa-solid fa-trash-can"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        {% else %}
-                            <tr>
-                                <td colspan="5" style="text-align: center; color: #64748b; padding: 30px;">
-                                    Chưa có thuốc nào trong tủ. Hãy thêm thuốc mới ở form phía trên!
-                                </td>
-                            </tr>
-                        {% endif %}
-                    </tbody>
-                </table>
+            <!-- THANH CÔNG CỤ CHỌN NHIỀU KIỂU iPHONE -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span id="selectCountText" style="font-weight: 600; color: #64748b; font-size: 14px;"></span>
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" id="btnToggleSelect" onclick="toggleSelectMode()" style="background: #e2e8f0; color: #334155; border: none; padding: 7px 15px; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                        <i class="fa-solid fa-check-double"></i> Chọn nhiều để xóa
+                    </button>
+                </div>
             </div>
+
+            <!-- FORM XÓA NHIỀU THUỐC (BULK DELETE) -->
+            <form action="/settings/quick-med/delete-bulk" method="POST" id="bulkDeleteForm" autocomplete="off">
+                <div class="table-responsive">
+                    <table class="patient-table" id="medTable" style="font-size: 14.5px;">
+                        <thead>
+                            <tr>
+                                <!-- Cột Checkbox Chọn tất cả (Mặc định ẩn) -->
+                                <th class="col-checkbox" style="display: none; width: 40px; text-align: center;">
+                                    <input type="checkbox" id="selectAllBox" onclick="toggleSelectAll(this)" style="cursor: pointer; width: 16px; height: 16px;">
+                                </th>
+                                <th style="width: 35%;">Tên Thuốc</th>
+                                <th style="text-align: center; width: 15%;">Ngày uống (Lần)</th>
+                                <th style="width: 20%;">Liều Sáng</th>
+                                <th style="width: 20%;">Liều Tối</th>
+                                <th class="col-action" style="text-align: center; width: 10%;">Xóa</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if quick_meds %}
+                                {% for m in quick_meds %}
+                                <tr class="med-row" onclick="handleRowClick(event, this)" style="cursor: pointer; transition: background 0.15s;">
+                                    <!-- Checkbox từng hàng (Mặc định ẩn) -->
+                                    <td class="col-checkbox" style="display: none; text-align: center;">
+                                        <input type="checkbox" name="med_ids[]" value="{{ m.id }}" class="med-checkbox" onclick="updateCountText()" style="cursor: pointer; width: 16px; height: 16px;">
+                                    </td>
+                                    <td style="font-weight: 600; color: var(--primary-color);">{{ m.name }}</td>
+                                    <td style="text-align: center;"><b>{{ m.times_per_day }}</b></td>
+                                    <td>{{ m.morning_dose }}</td>
+                                    <td>{{ m.evening_dose }}</td>
+                                    <!-- Nút xóa lẻ từng mục (Mặc định hiển thị) -->
+                                    <td class="col-action" style="text-align: center;">
+                                        <a href="/settings/quick-med/delete/{{ m.id }}" onclick="return confirm('Xóa thuốc này khỏi danh sách nhanh?')" style="color: #ef4444; font-size: 17px;" title="Xóa thuốc">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="6" style="text-align: center; color: #64748b; padding: 30px;">
+                                        Chưa có thuốc nào trong tủ. Hãy thêm thuốc mới ở form phía trên!
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- THANH NÚT XÓA ĐÃ CHỌN (Chỉ hiện ra khi ở chế độ chọn) -->
+                <div id="bulkActionBar" style="display: none; margin-top: 15px; text-align: right; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px dashed #cbd5e1;">
+                    <button type="button" onclick="toggleSelectMode()" style="background: #cbd5e1; color: #334155; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-right: 8px;">
+                        Hủy
+                    </button>
+                    <button type="submit" onclick="return confirm('Bạn có chắc chắn muốn xóa tất cả thuốc đã chọn?')" style="background: #ef4444; color: #ffffff; border: none; padding: 8px 18px; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                        <i class="fa-solid fa-trash-can"></i> Xóa mục đã chọn (<span id="selectedNumber">0</span>)
+                    </button>
+                </div>
+            </form>
         </section>
     </main>
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    <!-- BỔ SUNG ĐOẠN SCRIPT NÀY ĐỂ GIỮ NGUYÊN TAB KHI RELOAD -->
+    
+    <!-- =========================================================
+         SCRIPT 1: TỰ ĐỘNG GIỮ NGUYÊN TAB KHI RELOAD TRANG
+         ========================================================= -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const hash = window.location.hash; // Lấy phần #tab-... trên URL
             if (hash) {
                 const tabId = hash.replace('#', '');
                 const targetTab = document.getElementById(tabId);
-                // Tìm nút bấm trên topbar tương ứng với tab đó
                 const targetBtn = document.querySelector(`.topbar-tab-btn[onclick*="${tabId}"]`);
                 
                 if (targetTab && targetBtn) {
@@ -304,6 +337,86 @@
                 }
             }
         });
+    </script>
+
+    <!-- =========================================================
+         SCRIPT 2: CHỌN NHIỀU XÓA NHANH THUỐC TỦ KIỂU iPHONE (iOS UX)
+         ========================================================= -->
+    <script>
+        let isSelectMode = false;
+
+        function toggleSelectMode() {
+            isSelectMode = !isSelectMode;
+            const checkCols = document.querySelectorAll('.col-checkbox');
+            const actionCols = document.querySelectorAll('.col-action');
+            const actionBar = document.getElementById('bulkActionBar');
+            const btnToggle = document.getElementById('btnToggleSelect');
+            const selectAllBox = document.getElementById('selectAllBox');
+
+            if (isSelectMode) {
+                checkCols.forEach(el => el.style.display = 'table-cell');
+                actionCols.forEach(el => el.style.display = 'none');
+                actionBar.style.display = 'block';
+                btnToggle.style.background = '#0284c7';
+                btnToggle.style.color = '#ffffff';
+                btnToggle.innerHTML = '<i class="fa-solid fa-xmark"></i> Thoát chế độ chọn';
+            } else {
+                checkCols.forEach(el => el.style.display = 'none');
+                actionCols.forEach(el => el.style.display = 'table-cell');
+                actionBar.style.display = 'none';
+                btnToggle.style.background = '#e2e8f0';
+                btnToggle.style.color = '#334155';
+                btnToggle.innerHTML = '<i class="fa-solid fa-check-double"></i> Chọn nhiều để xóa';
+                
+                // Bỏ chọn tất cả khi tắt chế độ
+                document.querySelectorAll('.med-checkbox').forEach(cb => {
+                    cb.checked = false;
+                    cb.closest('tr').style.background = '';
+                });
+                if(selectAllBox) selectAllBox.checked = false;
+                updateCountText();
+            }
+        }
+
+        // Bấm thẳng vào hàng là chọn (Giống chạm trên iPhone)
+        function handleRowClick(event, rowEl) {
+            if (!isSelectMode) return;
+            if (event.target.tagName === 'INPUT') return;
+            
+            const checkbox = rowEl.querySelector('.med-checkbox');
+            if (checkbox) {
+                checkbox.checked = !checkbox.checked;
+                updateCountText();
+            }
+        }
+
+        // Chọn tất cả các mục
+        function toggleSelectAll(masterBox) {
+            document.querySelectorAll('.med-checkbox').forEach(cb => {
+                cb.checked = masterBox.checked;
+            });
+            updateCountText();
+        }
+
+        // Cập nhật số lượng và bôi nền dòng đã chọn
+        function updateCountText() {
+            const checkedBoxes = document.querySelectorAll('.med-checkbox:checked');
+            const count = checkedBoxes.length;
+            const countSpan = document.getElementById('selectedNumber');
+            const textSpan = document.getElementById('selectCountText');
+
+            if(countSpan) countSpan.innerText = count;
+            if(textSpan) textSpan.innerText = isSelectMode ? `Đã chọn: ${count} thuốc` : '';
+
+            document.querySelectorAll('.med-checkbox').forEach(cb => {
+                const tr = cb.closest('tr');
+                if (cb.checked) {
+                    tr.style.background = '#eff6ff';
+                } else {
+                    tr.style.background = '';
+                }
+            });
+        }
     </script>
 </body>
 </html>

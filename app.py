@@ -161,14 +161,14 @@ def form_noisoi(patient_id):
                 
         cursor = db.execute('''
             INSERT INTO examinations 
-            (patient_id, tai_p, tai_t, mui_p, mui_t, vong_hong, thanh_quan, conclusion,
+            (patient_id, tai_p, tai_t, mui_p, mui_t, vong_hong, vom_hong, thanh_quan, conclusion,
              image_1, image_2, image_3, image_4, hut_mui_days, cham_hong_days, lam_thuoc_tai_days)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             patient_id,
             request.form['tai_p'], request.form['tai_t'],
             request.form['mui_p'], request.form['mui_t'],
-            request.form['vong_hong'], request.form['thanh_quan'],
+            request.form['vong_hong'], request.form['vom_hong'], request.form['thanh_quan'],
             request.form['conclusion'],
             image_names[0], image_names[1], image_names[2], image_names[3],
             request.form.get('hut_mui_days', ''),

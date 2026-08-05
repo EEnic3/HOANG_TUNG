@@ -2,28 +2,28 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>In Phiếu Nội Soi (A4) - {{ exam.full_name }}</title>
+    <title>In Phiếu Nội Soi (A5) - {{ exam.full_name }}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/print.css') }}">
     <style>
-        /* ===== TRANG A4 - khớp margin với file mẫu docx ===== */
+        /* ===== KHỔ GIẤY A5 DỌC - KHÓA LỀ 0 CHỐNG CẮT CHÂN TRANG ===== */
         @page {
-            size: A4 portrait;
-            margin: 8mm 10mm;
+            size: A5 portrait;
+            margin: 0 !important;
         }
-        .page-a4 {
-            width: 210mm;
-            min-height: 297mm;
+        .page-a5 {
+            width: 148mm;
+            height: 210mm;
+            max-height: 210mm;
             margin: 0 auto;
-            padding: 15mm 14mm 5mm 17mm;
+            padding: 5mm 8mm 4mm 8mm; /* Lề trên 5mm, lề dưới 4mm tối ưu diện tích in A5 */
             box-sizing: border-box;
             font-family: "Times New Roman", Times, serif;
             color: #000000;
-            font-size: 14pt;
-            line-height: 1.25;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
+            overflow: hidden; /* Khóa tuyệt đối không cho đẻ trang 2 */
         }
     
         .text-center { text-align: center; }
@@ -31,60 +31,57 @@
     
         /* ===== HEADER PHÒNG KHÁM ===== */
         .clinic-name {
-            font-size: 20pt;
+            font-size: 15pt;
             font-weight: bold;
             text-align: center;
             letter-spacing: 0.3px;
             margin: 0;
         }
         .clinic-address {
-            font-size: 16pt;
+            font-size: 11.5pt;
             text-align: center;
-            margin: 2pt 0 0 0;
+            margin: 1pt 0 0 0;
         }
         .clinic-license {
-            font-size: 15pt;
+            font-size: 10.5pt;
             text-align: center;
-            margin: 2pt 0 12pt 0;
+            margin: 1pt 0 4pt 0;
         }
     
         /* ===== TIÊU ĐỀ PHIẾU ===== */
         .form-title {
-            font-size: 18pt;
+            font-size: 14pt;
             font-weight: bold;
             text-align: center;
-            margin: 10pt 0 16pt 0;
+            margin: 4pt 0 6pt 0;
         }
     
         /* ===== THÔNG TIN BỆNH NHÂN ===== */
-        .patient-row {
+        .patient-info-a5 {
+            padding-left: 1mm;
+        }
+        .patient-info-a5 .label { font-weight: bold; }
+        .patient-row-2 {
             display: flex;
-            justify-content: space-between;
-            font-size: 14pt;
-            line-height: 1.25;
-            margin: 0 0 6pt 0;
-            padding-left: 2mm;
+            justify-content: flex-start;
+            gap: 25px;
+            margin-top: 1pt;
         }
-        .patient-row .label { font-weight: bold; font-size: 13pt; }
-    
         .row-info {
-            font-size: 14pt;
-            line-height: 16.05pt;
-            margin: 0 0 6pt 0;
-            padding-left: 2mm;
+            padding-left: 1mm;
         }
-        .row-info .label { font-weight: bold; font-size: 13pt; }
+        .row-info .label { font-weight: bold; }
     
-        /* ===== LƯỚI 4 ẢNH NỘI SOI ===== */
-        .grid-images-a4 {
+        /* ===== LƯỚI 4 ẢNH NỘI SOI (CHỈ HIỆN KHI CÓ ẢNH) ===== */
+        .grid-images-a5 {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px 20px;
-            margin: 10px 0 14px 0;
+            gap: 4px 10px;
+            margin: 4px 0;
             justify-items: center;
             align-items: center;
         }
-        .img-box-a4 {
+        .img-box-a5 {
             text-align: center;
             border: none !important;
             padding: 0;
@@ -94,8 +91,8 @@
             align-items: center;
             justify-content: center;
         }
-        .img-box-a4 img {
-            height: 145px;
+        .img-box-a5 img {
+            height: 65px;
             width: auto;
             max-width: 95%;
             object-fit: contain;
@@ -104,77 +101,91 @@
             border-radius: 3px;
         }
     
-        /* ===== KẾT QUẢ MÔ TẢ ===== */
-        .section-label {
-            font-size: 18pt;
-            font-weight: bold;
-            text-align: center;
-            margin: 9pt 0 6pt 0;
-            padding-left: 2mm;
-        }
-    
-        .result-line {
-            font-size: 14pt;
-            margin: 0 0 6pt 0;
-            padding-left: 2mm;
-        }
-        .result-line .label { font-weight: bold; font-size: 13pt; }
-    
-        .conclusion-line {
-            font-size: 14pt;
-            margin: 6pt 0 6pt 0;
-            padding-left: 2mm;
-        }
-        .conclusion-line .label { font-weight: bold; font-size: 16pt; }
-    
-        /* ===== THỦ THUẬT ===== */
+        /* ===== THỦ THUẬT (3 CỘT TUYỆT ĐỐI) ===== */
         .procedures-line {
-            display: flex;
-            justify-content: space-between;
-            font-size: 13pt;
-            margin: 8pt 0 0 0;
-            padding-left: 2mm;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            padding-left: 1mm;
+            width: 100%;
         }
+        .procedures-line div:nth-child(1) { text-align: left; }
+        .procedures-line div:nth-child(2) { text-align: center; }
+        .procedures-line div:nth-child(3) { text-align: right; }
         .procedures-line b { font-weight: bold; }
     
         /* ===== CHỮ KÝ BÁC SĨ ===== */
         .footer-sign {
             display: flex;
             justify-content: space-between;
-            margin-top: 10pt;
             page-break-inside: avoid;
         }
         .sign-box {
-            font-size: 13pt;
             text-align: center;
-            width: 45%;
+            width: 55%;
             margin-left: auto;
         }
         .sign-box .sign-date { font-style: italic; text-align: center; margin-bottom: 2pt; }
-        .sign-box .sign-role { font-weight: bold; text-align: center; margin-bottom: 40pt; }
+        .sign-box .sign-role { font-weight: bold; text-align: center; }
         .sign-box .sign-name { font-weight: bold; text-align: center; }
     
-        /* ===== 3 CÂU DẶN DÒ DƯỚI CÙNG ===== */
+        /* ===== 3 CÂU DẶN DÒ (LUÔN HÍT SÁT ĐÁY A5) ===== */
         .footer-note {
-            font-size: 10pt;
-            margin-top: 12pt;
-            padding-left: 2mm;
-            /* --- THÊM DÒNG NÀY ĐỂ ĐẨY SÁT XUỐNG ĐÁY A4 --- */
-            margin-top: auto !important; 
-            padding-top: 15pt; /* Tạo khoảng cách an toàn với chữ ký phía trên */
+            font-size: 8pt;
+            padding-left: 1mm;
+            margin-top: auto !important;
+            line-height: 1.2;
+            color: #111;
         }
-        .footer-note div { margin-bottom: 3pt; }
+        .footer-note div { margin-bottom: 2pt; }
 
-        /* =========================================================
-           CSS KHÓA IN TRANG A4 - CHỐNG BỊ DƯ TRANG TRẮNG THỨ 2
-           ========================================================= */
+        /* =========================================================================
+           CHẾ ĐỘ 1: KHI PHIẾU CÓ ẢNH (.has-images) -> GIỮ NGUYÊN 100% VÌ ĐANG ĐẸP
+           ========================================================================= */
+        .has-images {
+            font-size: 11pt;
+            line-height: 1.25;
+        }
+        .has-images .patient-info-a5 { font-size: 11pt; margin-bottom: 2pt; }
+        .has-images .row-info { font-size: 11pt; margin: 0 0 2pt 0; }
+        .has-images .section-label { font-size: 12.5pt; font-weight: bold; text-align: center; margin: 4pt 0 4pt 0; }
+        .has-images .result-line { font-size: 11pt; margin: 0 0 3pt 0; line-height: 1.25; padding-left: 1mm; }
+        .has-images .result-line .label { font-weight: bold; }
+        .has-images .conclusion-line { font-size: 11.5pt; margin: 6pt 0 6pt 0; line-height: 1.25; padding-left: 1mm; }
+        .has-images .conclusion-line .label { font-weight: bold; font-size: 12pt; }
+        .has-images .procedures-line { font-size: 10.5pt; margin: 4pt 0 4pt 0; }
+        .has-images .footer-sign { margin-top: 4pt; }
+        .has-images .sign-box { font-size: 10.5pt; }
+        .has-images .sign-box .sign-role { margin-bottom: 22pt; }
+        .has-images .footer-note { padding-top: 4pt; }
+
+        /* =========================================================================
+           CHẾ ĐỘ 2: KHI PHIẾU KHÔNG CÓ ẢNH (.no-images) -> ĐÃ TINH CHỈNH CHỐNG CẮT CHÂN TRANG
+           ========================================================================= */
+        .no-images {
+            font-size: 11.5pt;
+            line-height: 1.35;
+        }
+        .no-images .patient-info-a5 { font-size: 11.5pt; margin-bottom: 4pt; }
+        .no-images .row-info { font-size: 11.5pt; margin: 0 0 3pt 0; }
+        .no-images .section-label { font-size: 13pt; font-weight: bold; text-align: center; margin: 6pt 0 6pt 0; }
+        .no-images .result-line { font-size: 11.5pt; margin: 0 0 5pt 0; line-height: 1.35; padding-left: 1mm; }
+        .no-images .result-line .label { font-weight: bold; }
+        .no-images .conclusion-line { font-size: 12pt; margin: 8pt 0 8pt 0; line-height: 1.3; padding-left: 1mm; }
+        .no-images .conclusion-line .label { font-weight: bold; font-size: 12.5pt; }
+        .no-images .procedures-line { font-size: 11pt; margin: 8pt 0 4pt 0; }
+        .no-images .footer-sign { margin-top: 8pt; }
+        .no-images .sign-box { font-size: 11pt; }
+        .no-images .sign-box .sign-role { margin-bottom: 26pt; } /* Khoảng ký tay chuẩn 26pt, cứu lại 100% 3 dòng dặn dò */
+        .no-images .footer-note { padding-top: 6pt; }
+
+        /* ===== KHÓA TRÀN TRANG KHI IN ===== */
         @media print {
             html, body {
-                width: 210mm;
-                height: 297mm;
+                width: 148mm;
+                height: 210mm;
                 margin: 0 !important;
                 padding: 0 !important;
-                overflow: hidden !important; /* Khóa chiều cao, chống đẻ trang trắng phía sau */
+                overflow: hidden !important;
             }
             .toolbar-no-print {
                 display: none !important;
@@ -189,15 +200,16 @@
     <div class="print-container">
     
         <!-- Thanh công cụ điều hướng trước khi in -->
-        <div class="toolbar-no-print" style="max-width: 210mm; margin: 0 auto 15px auto; padding: 10px 15px; background: #f1f5f9; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+        <div class="toolbar-no-print" style="max-width: 148mm; margin: 0 auto 15px auto; padding: 10px 15px; background: #f1f5f9; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
             <a href="/" style="color: #475569; text-decoration: none; font-weight: bold;"><i class="fa-solid fa-house"></i> Trang chủ</a>
             <div style="display: flex; gap: 10px;">
-                <button onclick="window.print()" style="background: #0284c7; color: #fff; border: none; padding: 10px 18px; border-radius: 6px; font-weight: bold; cursor: pointer;"><i class="fa-solid fa-print"></i> IN PHIẾU A4</button>
+                <button onclick="window.print()" style="background: #0284c7; color: #fff; border: none; padding: 10px 18px; border-radius: 6px; font-weight: bold; cursor: pointer;"><i class="fa-solid fa-print"></i> IN PHIẾU A5</button>
                 <a href="/donthuoc/{{ exam.id }}" style="background: #10b981; color: #fff; text-decoration: none; padding: 10px 18px; border-radius: 6px; font-weight: bold;">Kê Đơn Thuốc <i class="fa-solid fa-arrow-right"></i></a>
             </div>
         </div>
 
-        <div class="page-a4">
+        <!-- KHUNG PHIẾU IN A5: TỰ ĐỘNG NHẬN DIỆN CÓ ẢNH HAY KHÔNG CÓ ẢNH -->
+        <div class="page-a5 {% if exam.image_1 or exam.image_2 or exam.image_3 or exam.image_4 %}has-images{% else %}no-images{% endif %}">
         
             <!-- HEADER PHÒNG KHÁM -->
             <div class="clinic-name">{{ settings.clinic_name }}</div>
@@ -208,13 +220,17 @@
             <div class="form-title">PHIẾU NỘI SOI TAI MŨI HỌNG</div>
         
             <!-- THÔNG TIN BỆNH NHÂN -->
-            <div class="patient-row">
-                <div><span class="label">HỌ VÀ TÊN:</span> <span class="font-bold" style="text-transform: uppercase;">{{ exam.full_name }}</span></div>
+            <div class="patient-info-a5">
                 <div>
-                    <span class="label">Tuổi:</span> <span class="font-bold">{{ exam.age }}</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <span class="label">Giới tính:</span> <span class="font-bold">{{ exam.gender }}</span>
+                    <span class="label">HỌ VÀ TÊN:</span> 
+                    <span class="font-bold" style="text-transform: uppercase;">{{ exam.full_name }}</span>
+                </div>
+                <div class="patient-row-2">
+                    <div><span class="label">Tuổi:</span> <span class="font-bold">{{ exam.age }}</span></div>
+                    <div><span class="label">Giới tính:</span> <span class="font-bold">{{ exam.gender }}</span></div>
                 </div>
             </div>
+
             <div class="row-info">
                 <span class="label">ĐỊA CHỈ:</span> <span>{{ exam.address }}</span>
             </div>
@@ -224,36 +240,34 @@
         
             <!-- KHUNG ẢNH NỘI SOI -->
             {% if exam.image_1 or exam.image_2 or exam.image_3 or exam.image_4 %}
-            <div class="grid-images-a4">
+            <div class="grid-images-a5">
                 {% if exam.image_1 %}
-                <div class="img-box-a4">
+                <div class="img-box-a5">
                     <img src="/static/uploads/{{ exam.image_1 }}">
                 </div>
                 {% endif %}
                 
                 {% if exam.image_2 %}
-                <div class="img-box-a4">
+                <div class="img-box-a5">
                     <img src="/static/uploads/{{ exam.image_2 }}">
                 </div>
                 {% endif %}
                 
                 {% if exam.image_3 %}
-                <div class="img-box-a4">
+                <div class="img-box-a5">
                     <img src="/static/uploads/{{ exam.image_3 }}">
                 </div>
                 {% endif %}
                 
                 {% if exam.image_4 %}
-                <div class="img-box-a4">
+                <div class="img-box-a5">
                     <img src="/static/uploads/{{ exam.image_4 }}">
                 </div>
                 {% endif %}
             </div>
             {% endif %}
         
-            <!-- =========================================================
-                 KẾT QUẢ MÔ TẢ (ĐÃ SỬA: TÁCH RIÊNG TAI P/T & MŨI P/T TỪNG DÒNG)
-                 ========================================================= -->
+            <!-- KẾT QUẢ MÔ TẢ -->
             <div class="section-label">KẾT QUẢ:</div>
         
             <div class="result-line">
@@ -271,8 +285,13 @@
             </div>
         
             <div class="result-line">
-                <span class="label">HỌNG - VÒM HỌNG:</span> {{ exam.vong_hong }}
+                <span class="label">HỌNG:</span> {{ exam.vong_hong }}
             </div>
+
+            <div class="result-line">
+                <span class="label">VÒM HỌNG:</span> {{ exam.vom_hong or '' }}
+            </div>
+            
             <div class="result-line">
                 <span class="label">HẠ HỌNG - THANH QUẢN:</span> {{ exam.thanh_quan }}
             </div>

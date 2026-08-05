@@ -145,13 +145,16 @@
                 </div>
 
                 <div class="form-row">
+                    <!-- Ô Nhập cho HỌNG (dùng lại field cũ vong_hong để giữ dữ liệu cũ) -->
                     <div class="form-group">
-                        <label>Họng - Vòm Họng:</label>
-                        <div class="template-bar">
-                            <button type="button" class="tag-btn" onclick="fillMau('vong_hong', 'Niêm mạc họng hồng, amidan không sưng, vòm sạch.')">Bình thường</button>
-                            <button type="button" class="tag-btn" onclick="fillMau('vong_hong', 'Niêm mạc họng đỏ, amidan quá phát mủ, thành sau có hạt.')">Viêm amidan</button>
-                        </div>
-                        <input type="text" id="vong_hong" name="vong_hong" value="Niêm mạc họng hồng, amidan không sưng, vòm sạch.">
+                        <label style="font-weight: bold; color: var(--primary-color);">HỌNG:</label>
+                        <input type="text" name="vong_hong" value="Niêm mạc họng hồng, amidan không sưng" placeholder="Mô tả kết quả khám Họng...">
+                    </div>
+
+                    <!-- Ô Nhập cho VÒM HỌNG (trường mới hoàn toàn) -->
+                    <div class="form-group">
+                        <label style="font-weight: bold; color: var(--primary-color);">VÒM HỌNG:</label>
+                        <input type="text" name="vom_hong" value="Vòm sạch" placeholder="Mô tả kết quả khám Vòm họng...">
                     </div>
                     <div class="form-group">
                         <label>Hạ Họng - Thanh Quản:</label>
